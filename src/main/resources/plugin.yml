@@ -1,0 +1,47 @@
+name: ShigenAssist
+version: 1.0.0
+main: red.man10.shigenassist.ShigenAssist
+api-version: 1.17
+authors: [ Aquarius0715, coppele ]
+softdepend: [ Statz ]
+depend: [ Statz ]
+description: ShigenPlusにElytraPlusなどの機能を追加したプラグインです。
+
+commands:
+  shigenassist:
+    description: 資源のアシストを行います。
+    aliases: [ sa, shigenplus, sp ]
+    permission: shigen.assist.command
+    permission-message: §f§l[§a§lShigenAssist§f§l]§r あなたには権限がありません!
+  elytraeffect:
+    description: この方が使い慣れている人のためのエリトラ補助用コマンドです。
+    aliases: [ ee, elytraplus, ep ]
+    permission: shigen.assist.command
+    permission-message: §f§l[§d§lElytraEffect§f§l]§r あなたには権限がありません!
+
+permissions:
+  shigenassist.*:
+    description: ShigenAssistの全ての権限です。
+    default: true
+    children:
+      - shigenassist.command
+      - shigenassist.assist.*
+  shigenassist.command:
+    description: ShigenAssistのコマンドの権限です。
+    default: true
+  shigenassist.assist.*:
+    description: ShigenAssistの補助関連の権限です。
+    default: true
+    children:
+      - shigenassist.assist.notice
+      - shigenassist.assist.night_vision
+      - shigenassist.assist.elytra
+  shigenassist.assist.notice:
+    description: ShigenAssistの破壊警告の使用権限です。
+    default: true
+  shigenassist.assist.night_vision:
+    description: ShigenAssistの暗視の使用権限です。
+    default: true
+  shigenassist.assist.elytra:
+    description: ShigenAssistのエリトラ補助の使用権限です。
+    default: true
