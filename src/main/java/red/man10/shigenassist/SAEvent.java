@@ -6,8 +6,10 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -36,12 +38,13 @@ public class SAEvent implements Listener {
     @EventHandler(ignoreCancelled = true)
     private void onJoin(PlayerJoinEvent event) {
         var status = ShigenAssist.getStatus(event.getPlayer());
-        status.addNightVision();
+        if (status.getData(SAType.SCOREBOARD).isEnable()) status.applyScoreboard();
+        if (status.getData(SAType.NIGHT_VISION).isEnable()) status.applyNightVision();
         status.sendMessage(ShigenAssist.SAPREFIX + "/sa help でコマンドを確認できます！");
     }
     @EventHandler(ignoreCancelled = true)
     private void onQuit(PlayerQuitEvent event) {
-        ShigenAssist.getStatus(event.getPlayer()).cancelAll();
+        ShigenAssist.deleteStatus(event.getPlayer()).cancelAll();
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -50,7 +53,7 @@ public class SAEvent implements Listener {
     }
     @EventHandler(ignoreCancelled = true)
     private void onRespawn(PlayerRespawnEvent event) {
-        ShigenAssist.getStatus(event.getPlayer()).addNightVision();
+        ShigenAssist.getStatus(event.getPlayer()).applyNightVision();
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -82,7 +85,7 @@ public class SAEvent implements Listener {
             status.applyScoreboardOnly();
             status.playSound(Sound.UI_BUTTON_CLICK, 1, 0);
             if (datum.getType() != SAType.NIGHT_VISION) return;
-            if (datum.isEnable()) status.addNightVision();
+            if (datum.isEnable()) status.applyNightVision();
             else status.removeNightVision();
             return;
         }
@@ -119,12 +122,12 @@ public class SAEvent implements Listener {
     @EventHandler(ignoreCancelled = true)
     private void onClose(InventoryCloseEvent event) {
         var player = (Player) event.getPlayer();
-        var status = ShigenAssist.getStatus(player);
-        var title = event.getView().getTitle();
         if (event.getInventory() == player.getInventory()) return;
+        var title = event.getView().getTitle();
+        if (!List.of(SATITLE, EETITLE).contains(title)) return;
+        var status = ShigenAssist.getStatus(player);
         if (title.equals(SATITLE)) status.playSound(Sound.BLOCK_CHEST_CLOSE, 1, 2);
-        else if (title.equals(EETITLE)) status.playSound(Sound.BLOCK_ENDER_CHEST_CLOSE, 1, 2);
-        else return;
+        else status.playSound(Sound.BLOCK_ENDER_CHEST_CLOSE, 1, 2);
         status.savePersistentDataContainer();
     }
 
@@ -173,15 +176,7 @@ public class SAEvent implements Listener {
     private void onSneak(PlayerToggleSneakEvent event) {
         var player = event.getPlayer();
         var status = ShigenAssist.getStatus(player);
-        if (!event.isSneaking()) {
-            status.cancelElytraJump();
-            return;
-        }
-        var chest = player.getInventory().getChestplate();
-        var datum = status.getData(SAType.ELYTRA);
-        if (datum.isEnable() && chest != null && chest.getType() == Material.ELYTRA) {
-            status.elytraJump();
-        }
+        if (event.isSneaking() && status.canElyTraJump()) status.elytraJump();
     }
     @EventHandler(ignoreCancelled = true)
     private void onElytra(SAElytraJumpEvent event) {

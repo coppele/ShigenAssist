@@ -71,7 +71,11 @@ public abstract class SACommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             if (arg.equals("elytra") && SAType.ELYTRA.hasPermission(sender)) {
-                assist.getServer().dispatchCommand(sender, "elytraeffect");
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(EEPREFIX + "§cプレイヤー側からのみ使用できます");
+                    return true;
+                }
+                ShigenAssist.getStatus((Player) sender).openElytraInventory();
                 return true;
             }
             if (arg.equals("reload") && sender.isOp()) {

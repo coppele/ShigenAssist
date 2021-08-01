@@ -36,18 +36,15 @@ public class SAElytra extends SASounder {
     public Particle getParticle() {
         return particle;
     }
-    @NotNull
     public Material getType() {
         return type;
     }
-    @NotNull
     public String getDisplay() {
         return display;
     }
     public void setLore(@NotNull List<String> lore) {
         this.lore = lore;
     }
-    @NotNull
     public List<String> getLore() {
         return lore;
     }

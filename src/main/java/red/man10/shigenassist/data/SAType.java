@@ -1,5 +1,6 @@
 package red.man10.shigenassist.data;
 
+import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import red.man10.shigenassist.ShigenAssist;
@@ -7,11 +8,11 @@ import red.man10.shigenassist.ShigenAssist;
 import java.util.List;
 
 @SuppressWarnings("SpellCheckingInspection")
-public enum SAType {
+public enum SAType implements Keyed {
 
     SCOREBOARD           ("スコアボード", "Scoreboard", null),
     LOCATION             ("座標", "Location", null),
-    BIOME                ("バイオーム", "Biome", null),
+    BIOME                ("バイオームとワールド", "BiomeWorld", null),
     RANK                 ("ランク", "Rank", null),
     NEXT_RANK            ("次のランク", "NextRank", null),
     ALL_MINED            ("総採掘量", "AllMined", null),
@@ -33,6 +34,16 @@ public enum SAType {
         this.permission = permission;
     }
 
+    public String getName() {
+        return name;
+    }
+    public String getDisplay() {
+        return display;
+    }
+    public String getPermission() {
+        return permission;
+    }
+
     public boolean hasPermission(CommandSender sender) {
         return permission != null && sender.hasPermission(permission);
     }
@@ -42,6 +53,7 @@ public enum SAType {
     public static List<SAType> getLogics() {
         return logics;
     }
+    @Override
     public NamespacedKey getKey() {
         return ShigenAssist.createKey(name);
     }

@@ -7,6 +7,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -37,9 +38,10 @@ public final class ShigenAssist extends JavaPlugin {
 
     public static final String SATITLE = "§f§l[§a§lShigenAssist§f§l]§r", SAPREFIX = SATITLE + ' ';
     public static final String EETITLE = "§f§l[§d§lElytraEffect§f§l]§r", EEPREFIX = SATITLE + ' ';
+    public static final String TABLE_NAME = "shigen_assist_status";
     public static final int PATH_MAX_LENGTH = 31;
-    private static FileConfiguration config;
     private static ShigenAssist instance;
+    private static FileConfiguration config;
     public static API api;
     private static final Set<SAStatus> players = new HashSet<>();
     private static Set<Material> noticeItems;
@@ -47,7 +49,6 @@ public final class ShigenAssist extends JavaPlugin {
     private static Set<SARank> ranks;
     private static Set<SAElytra> elytras;
     private static int elytraStandby;
-    // privateやpublicがないともやもやする病にかかってます(´･ω･`)
 
     public ShigenAssist() {
         instance = this;
@@ -271,14 +272,20 @@ public final class ShigenAssist extends JavaPlugin {
     }
     static SAStatus getStatus(Player player) {
         var uuid = player.getUniqueId();
-        return players.stream().filter(status -> status.getPlayer().getUniqueId().equals(uuid)).findFirst().orElseGet(() -> {
-            var status = SAStatus.loadPersistentDataContainer(player);
-            status.applyScoreboard();
-            if (status.getData(SAType.NIGHT_VISION).isEnable()) status.addNightVision();
-            players.add(status);
-            return status;
+        return players.stream().filter(sa -> sa.getPlayer().getUniqueId().equals(uuid)).findFirst().orElseGet(() -> {
+            var sa = SAStatus.loadPersistentDataContainer(player);
+            if (sa.getData(SAType.SCOREBOARD).isEnable()) sa.applyScoreboard();
+            if (sa.getData(SAType.NIGHT_VISION).isEnable()) sa.applyNightVision();
+            players.add(sa);
+            return sa;
         });
     }
+    static SAStatus deleteStatus(Player player) {
+        var status = getStatus(player);
+        players.remove(status);
+        return status;
+    }
+
     static boolean containsItemDamageNotices(Material type) {
         return noticeItems.contains(type);
     }
@@ -299,8 +306,8 @@ public final class ShigenAssist extends JavaPlugin {
     public static Set<SANotice> getNotices() {
         return notices;
     }
-    public static SAElytra getElytra(String display) {
-        return elytras.stream().filter(elytra -> elytra.getDisplay().equals(display)).findFirst().orElse(SAElytra.NONE);
+    public static SAElytra getElytra(String name) {
+        return elytras.stream().filter(elytra -> elytra.getDisplay().equals(name)).findFirst().orElse(SAElytra.NONE);
     }
     public static Set<SAElytra> getElytras() {
         return elytras;
