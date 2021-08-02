@@ -40,7 +40,7 @@ public class SAEvent implements Listener {
         var status = ShigenAssist.getStatus(event.getPlayer());
         if (status.getData(SAType.SCOREBOARD).isEnable()) status.applyScoreboard();
         if (status.getData(SAType.NIGHT_VISION).isEnable()) status.applyNightVision();
-        status.sendMessage(ShigenAssist.SAPREFIX + "/sa help でコマンドを確認できます！");
+        status.sendMessage(ShigenAssist.SAPREFIX + "/sa help でコマンドが確認できます！");
     }
     @EventHandler(ignoreCancelled = true)
     private void onQuit(PlayerQuitEvent event) {

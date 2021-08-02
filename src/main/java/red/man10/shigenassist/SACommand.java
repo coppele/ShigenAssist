@@ -59,12 +59,12 @@ public abstract class SACommand implements CommandExecutor, TabCompleter {
                 var last = authors.get(authors.size() - 1);
                 var author = joiner.toString().replace(", " + last, " and " + last);
                 sender.sendMessage("=======================" + ShigenAssist.SATITLE + "=======================");
-                sender.sendMessage("</sp> : スコアボードの表示設定を開きます。");
-                sender.sendMessage("</sp help> : この説明画面を開きます。");
+                sender.sendMessage("</sa> : スコアボードの表示設定を開きます。");
+                sender.sendMessage("</sa help> : この説明画面を開きます。");
                 if (SAType.ELYTRA.hasPermission(sender)) {
-                    sender.sendMessage("</ee | /sp elytra> : エリトラ補助のエフェクト設定を開きます。");
+                    sender.sendMessage("</ee | /sa elytra> : エリトラ補助のエフェクト設定を開きます。");
                 }
-                if (sender.isOp()) sender.sendMessage("§7</sp reload> : config.ymlを再読み込みします。");
+                if (sender.isOp()) sender.sendMessage("§7</sa reload> : config.ymlを再読み込みします。");
                 sender.sendMessage("Created By " + author);
                 sender.sendMessage("Ver " + description.getVersion() + " Released on 2021/07/28");
                 sender.sendMessage("=======================" + ShigenAssist.SATITLE + "=======================");

@@ -13,12 +13,12 @@ commands:
     description: 資源のアシストを行います。
     aliases: [ sa, shigenplus, sp ]
     permission: shigenassist.command
-    permission-message: §f§l[§a§lShigenAssist§f§l]§r あなたには権限がありません!
+    permission-message: §f§l[§a§lShigenAssist§f§l]§c あなたには権限がありません！
   elytraeffect:
     description: この方が使い慣れている人のためのエリトラ補助用コマンドです。
     aliases: [ ee, elytraplus, ep ]
     permission: shigenassist.command
-    permission-message: §f§l[§d§lElytraEffect§f§l]§r あなたには権限がありません!
+    permission-message: §f§l[§d§lElytraEffect§f§l]§c あなたには権限がありません！
 
 permissions:
   shigenassist.*:
