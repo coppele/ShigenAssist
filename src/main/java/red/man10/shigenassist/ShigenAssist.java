@@ -2,6 +2,7 @@ package red.man10.shigenassist;
 
 import me.staartvin.statz.Statz;
 import me.staartvin.statz.api.API;
+import me.staartvin.statz.datamanager.DataManager;
 import me.staartvin.statz.datamanager.player.PlayerStat;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Material;
@@ -42,7 +43,8 @@ public final class ShigenAssist extends JavaPlugin {
     public static final int PATH_MAX_LENGTH = 31;
     private static ShigenAssist instance;
     private static FileConfiguration config;
-    public static API api;
+    private static DataManager manager;
+    private static API api;
     private static final Set<SAStatus> players = new HashSet<>();
     private static Set<Material> noticeItems;
     private static Set<SANotice> notices;
@@ -78,15 +80,11 @@ public final class ShigenAssist extends JavaPlugin {
         }
         var statz = (Statz) plugin;
         api = statz.getStatzAPI();
+        manager = statz.getDataManager();
         setupConfig();
         SAEvent.registerEvents();
         SACommand.registerCommands();
-        var manager = statz.getDataManager();
-        getServer().getOnlinePlayers().forEach(player -> {
-            var uuid = player.getUniqueId();
-            if (!manager.isPlayerLoaded(uuid)) manager.loadPlayerData(uuid, PlayerStat.BLOCKS_BROKEN);
-            getStatus(player);
-        });
+        getServer().getOnlinePlayers().forEach(ShigenAssist::getStatus);
     }
 
     @Override
@@ -272,6 +270,7 @@ public final class ShigenAssist extends JavaPlugin {
     }
     static SAStatus getStatus(Player player) {
         var uuid = player.getUniqueId();
+        if (!manager.isPlayerLoaded(uuid)) manager.loadPlayerData(uuid, PlayerStat.BLOCKS_BROKEN);
         return players.stream().filter(sa -> sa.getPlayer().getUniqueId().equals(uuid)).findFirst().orElseGet(() -> {
             var sa = SAStatus.loadPersistentDataContainer(player);
             if (sa.getData(SAType.SCOREBOARD).isEnable()) sa.applyScoreboard();
@@ -284,6 +283,9 @@ public final class ShigenAssist extends JavaPlugin {
         var status = getStatus(player);
         players.remove(status);
         return status;
+    }
+    public static int getBlocksBroken(Player player) {
+        return api.getTotalOf(PlayerStat.BLOCKS_BROKEN, player.getUniqueId(), null).intValue();
     }
 
     static boolean containsItemDamageNotices(Material type) {

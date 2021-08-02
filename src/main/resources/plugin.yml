@@ -3,6 +3,7 @@ version: 1.0.1
 main: red.man10.shigenassist.ShigenAssist
 api-version: 1.17
 authors: [ Aquarius0715, coppele ]
+website: https://github.com/coppele/ShigenAssist
 softdepend: [ Statz ]
 depend: [ Statz ]
 description: ShigenPlusにElytraPlusなどの機能を追加したプラグインです。

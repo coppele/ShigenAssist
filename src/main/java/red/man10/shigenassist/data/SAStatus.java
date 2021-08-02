@@ -47,11 +47,11 @@ public class SAStatus {
     private BukkitTask scoreTask, elytraTask, nightTask;
     private boolean charge, boost;
 
-    public SAStatus(Player player) {
+    public SAStatus(Player player, int mining) {
         this.player = player;
         this.data = new EnumMap<>(SAType.class);
         for (var datum : SAType.values()) data.put(datum, new SAData(datum));
-        mining = ShigenAssist.api.getTotalOf(PlayerStat.BLOCKS_BROKEN, player.getUniqueId(), null).intValue();
+        this.mining = mining;
         this.nowPage = 0;
         this.charge = this.boost = false;
         setRank(ShigenAssist.getRank(this));
@@ -366,7 +366,7 @@ public class SAStatus {
         persistent.set(ShigenAssist.createKey("SelectElytra"), PersistentDataType.STRING, elytra.getDisplay());
     }
     public static SAStatus loadPersistentDataContainer(Player player) {
-        var status = new SAStatus(player);
+        var status = new SAStatus(player, ShigenAssist.getBlocksBroken(player));
         var persistent = player.getPersistentDataContainer();
         for (var type : SAType.values()) {
             var datum = status.getData(type);
