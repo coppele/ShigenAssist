@@ -1,8 +1,10 @@
-package red.man10.shigenassist.data.logic;
+package red.man10.shigenassist.logic;
 
 public class SANotice extends SASounder {
 
-    private int percentage;
+    public static final String PERMISSION = "ShigenAssist.assist.notice";
+
+    private final int percentage;
     private String format;
 
     public SANotice(int percentage) {
@@ -12,9 +14,6 @@ public class SANotice extends SASounder {
         this.format = null;
     }
 
-    public void setPercentage(int percentage) {
-        this.percentage = percentage;
-    }
     public int getPercentage() {
         return percentage;
     }

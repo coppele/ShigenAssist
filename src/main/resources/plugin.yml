@@ -1,5 +1,5 @@
 name: ShigenAssist
-version: 1.0.2
+version: 1.0.4
 main: red.man10.shigenassist.ShigenAssist
 api-version: 1.17
 authors: [ Aquarius0715, coppele ]
@@ -37,6 +37,7 @@ permissions:
       - shigenassist.assist.notice
       - shigenassist.assist.night_vision
       - shigenassist.assist.elytra
+      - shigenassist.assist.remarks
   shigenassist.assist.notice:
     description: ShigenAssistの破壊警告の使用権限です。
     default: true
@@ -45,4 +46,7 @@ permissions:
     default: true
   shigenassist.assist.elytra:
     description: ShigenAssistのエリトラ補助の使用権限です。
+    default: true
+  shigenassist.assist.remarks:
+    description: ShigenAssistの備考欄の表示権限です。
     default: true

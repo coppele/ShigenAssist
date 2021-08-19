@@ -1,4 +1,4 @@
-package red.man10.shigenassist.data.logic;
+package red.man10.shigenassist.logic;
 
 import org.bukkit.Sound;
 import red.man10.shigenassist.data.SAStatus;
@@ -13,7 +13,7 @@ public abstract class SASounder {
 
     public void setSound(String sound, float volume, float pitch) {
         this.key = sound;
-        for (Sound value : Sound.values()) {
+        for (var value : Sound.values()) {
             if (!value.name().equals(sound.toUpperCase(Locale.ROOT)) && !value.getKey().getKey().equals(sound)) continue;
             this.sound = value;
             break;

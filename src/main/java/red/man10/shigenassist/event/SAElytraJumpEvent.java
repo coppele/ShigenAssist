@@ -4,7 +4,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
 import org.jetbrains.annotations.NotNull;
-import red.man10.shigenassist.data.logic.SAElytra;
+import red.man10.shigenassist.logic.SAElytra;
 import red.man10.shigenassist.data.SAStatus;
 
 public class SAElytraJumpEvent extends PlayerEvent implements Cancellable {

@@ -1,4 +1,4 @@
-package red.man10.shigenassist.data.logic;
+package red.man10.shigenassist.logic;
 
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -15,6 +15,7 @@ import java.util.List;
 public class SAElytra extends SASounder {
 
     public static final SAElytra NONE = new SAElytra(null, Material.BARRIER, "無し");
+    public static final String PERMISSION = "ShigenAssist.assist.elytra";
 
     private final Particle particle;
     private final String display;

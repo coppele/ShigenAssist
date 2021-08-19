@@ -7,48 +7,50 @@ import java.util.List;
 
 public class SAData {
 
-    private int enable = 0;
+    private boolean enable, use;
     private final SAType type;
     private final String enableText, disableText;
 
     protected SAData(SAType type) {
+        this.enable = this.use = true;
         this.type = type;
-        this.enableText = type.permission == null ? "§a§l表示" : "§a§l有効";
-        this.disableText = type.permission == null ? "§c§l非表示" : "§c§l無効";
+        this.enableText = type.isLogic() ? "表示" : "有効";
+        this.disableText = type.isLogic() ? "非表示" : "無効";
     }
 
     public SAType getType() {
         return type;
     }
-    public void setEnable(int enable) {
+    public void setEnable(boolean enable) {
         this.enable = enable;
     }
-    public void setEnable(boolean enable) {
-        this.enable = enable ? 1 : 0;
-    }
     public boolean isEnable() {
-        return enable == 1;
+        return type.isDisplay() ? enable : enable && use;
     }
     public boolean isDisable() {
-        return enable == 0;
+        return !isEnable();
     }
-    public int getEnable() {
-        return enable;
+    public void setUse(boolean use) {
+        this.use = use;
+    }
+    public boolean canUse() {
+        return use;
+    }
+    public String getColor() {
+        return enable ? "§a§l" : "§c§l";
     }
     public String getText() {
-        return isEnable() ? enableText : disableText;
+        return enable ? enableText : disableText;
+    }
+    public String getColorText() {
+        return getColor() + getText();
     }
     public ItemStack toItemStack() {
-        var item = new ItemStack(switch (enable) {
-            case -1 -> Material.COAL_BLOCK;
-            case 1 -> Material.EMERALD_BLOCK;
-            default -> Material.REDSTONE_BLOCK;
-        });
+        var item = new ItemStack(enable ? Material.EMERALD_BLOCK : Material.REDSTONE_BLOCK);
         var meta = item.getItemMeta();
         if (meta == null) return item;
-        meta.setDisplayName("§l" + type.display + ": " + getText());
-        if (enable == -1) meta.setLore(List.of("§4使用できません"));
-        else meta.setLore(List.of("§8ここをクリックで表示切り替え"));
+        meta.setDisplayName("§l" + type.display + ": " + getColorText());
+        meta.setLore(List.of("§8ここをクリックで" + getText() + "に切り替え", "§0" + type.getName()));
         item.setItemMeta(meta);
         return item;
     }

@@ -9,42 +9,55 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import red.man10.shigenassist.data.SAData;
 import red.man10.shigenassist.data.SAType;
-import red.man10.shigenassist.data.logic.SANotice;
 import red.man10.shigenassist.event.SAElytraJumpEvent;
+import red.man10.shigenassist.logic.SANightVision;
+import red.man10.shigenassist.logic.SANotice;
+import red.man10.shigenassist.logic.SAScoreboard;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static red.man10.shigenassist.ShigenAssist.EETITLE;
 import static red.man10.shigenassist.ShigenAssist.SATITLE;
 
-public class SAEvent implements Listener {
+public class SAListener implements Listener {
+
+    private static ShigenAssist assist;
+    private static SAConfig config;
+
+    private SAListener() {}
 
     public static void registerEvents() {
-        var assist = ShigenAssist.getInstance();
-        assist.getServer().getPluginManager().registerEvents(new SAEvent(), assist);
+        assist = ShigenAssist.getInstance();
+        config = assist.getSAConfig();
+        assist.getServer().getPluginManager().registerEvents(new SAListener(), assist);
     }
 
     @EventHandler(ignoreCancelled = true)
-    private void onJoin(PlayerJoinEvent event) {
-        var status = ShigenAssist.getStatus(event.getPlayer());
-        if (status.getData(SAType.SCOREBOARD).isEnable()) status.applyScoreboard();
-        if (status.getData(SAType.NIGHT_VISION).isEnable()) status.applyNightVision();
+    public void onJoin(PlayerJoinEvent event) {
+        var player = event.getPlayer();
+        var status = ShigenAssist.getStatus(player);
+        if (status.getData(SAType.SCOREBOARD).isEnable()) SAScoreboard.apply(status);
+        if (status.getData(SAType.NIGHT_VISION).isEnable()) SANightVision.apply(player);
         status.sendMessage(ShigenAssist.SAPREFIX + "/sa help でコマンドが確認できます！");
     }
-    @EventHandler(ignoreCancelled = true)
-    private void onQuit(PlayerQuitEvent event) {
-        ShigenAssist.deleteStatus(event.getPlayer()).cancelAll();
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
+    public void onQuit(PlayerQuitEvent event) {
+        var status = ShigenAssist.getStatus(event.getPlayer());
+        status.cancelElytraJump();
+        ShigenAssist.getPlayers().remove(status);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -53,51 +66,59 @@ public class SAEvent implements Listener {
     }
     @EventHandler(ignoreCancelled = true)
     private void onRespawn(PlayerRespawnEvent event) {
-        ShigenAssist.getStatus(event.getPlayer()).applyNightVision();
+        var player = event.getPlayer();
+        var status = ShigenAssist.getStatus(player);
+        if (status.getData(SAType.NIGHT_VISION).isEnable()) SANightVision.apply(player);
     }
 
     @EventHandler(ignoreCancelled = true)
     private void onClick(InventoryClickEvent event) {
         var title = event.getView().getTitle();
         if (!List.of(SATITLE, EETITLE).contains(title)) return;
+        event.setCancelled(true);
         var player = (Player) event.getWhoClicked();
         var status = ShigenAssist.getStatus(player);
-        var inventory = event.getClickedInventory();
-        if (inventory == null) return;
-        if (inventory == player.getInventory()) return;
-        if (event.getHotbarButton() != -1) {
-            event.setCancelled(true);
-            return;
-        }
+        var inventory = event.getView().getTopInventory();
         var item = event.getCurrentItem();
         if (item == null) return;
-        int slot = event.getRawSlot();
-        event.setCancelled(true);
-        if (title.equals(SATITLE)) {
-            if (item.getType() == Material.COAL_BLOCK) {
-                status.playSound(Sound.ENTITY_ITEM_BREAK, 1, 0);
-                status.sendMessage(ShigenAssist.SAPREFIX + "§c権限がありません");
-                return;
-            }
-            var datum = status.getData(SAType.values()[slot]);
-            datum.setEnable(datum.isDisable());
-            inventory.setItem(slot, datum.toItemStack());
-            status.applyScoreboardOnly();
-            status.playSound(Sound.UI_BUTTON_CLICK, 1, 0);
-            if (datum.getType() != SAType.NIGHT_VISION) return;
-            if (datum.isEnable()) status.applyNightVision();
-            else status.removeNightVision();
-            return;
-        }
-        if (!SAType.ELYTRA.hasPermission(player)) {
-            status.playSound(Sound.ENTITY_ITEM_BREAK, 1, 0);
-            status.sendMessage(ShigenAssist.SAPREFIX + "§c権限がありません");
-            status.closeInventory();
-            return;
-        }
         var meta = item.getItemMeta();
         if (meta == null) return;
-        int size = ShigenAssist.getElytras().size();
+        int slot = event.getRawSlot();
+        if (slot >= inventory.getSize()) return;
+        if (title.equals(SATITLE)) {
+            SAData datum;
+            var lore = meta.getLore();
+            if (lore == null || lore.size() < 2) return;
+            var name = lore.get(1);
+            for (var type : SAType.values()) {
+                if (!name.equals("§0" + type.getName())) continue;
+                datum = status.getData(type);
+                if (!datum.canUse()) {
+                    status.playSound(Sound.ENTITY_ITEM_BREAK, 1, 0);
+                    status.sendMessage(ShigenAssist.EEPREFIX + "§c使用できません");
+                    break;
+                }
+                datum.setEnable(datum.isDisable());
+                SAScoreboard.apply(status);
+                status.playSound(Sound.UI_BUTTON_CLICK, 1, 0);
+                if (datum.getType() == SAType.NIGHT_VISION) {
+                    if (datum.isEnable()) SANightVision.apply(player);
+                    else SANightVision.remove(player);
+                }
+                break;
+            }
+            status.createAssistInventory();
+            player.updateInventory();
+            return;
+        }
+        if (!status.getData(SAType.ELYTRA).isDisable()) {
+            status.playSound(Sound.ENTITY_ITEM_BREAK, 1, 0);
+            status.sendMessage(ShigenAssist.EEPREFIX + "§c使用できません");
+            status.createElytraInventory();
+            player.updateInventory();
+            return;
+        }
+        int size = config.getElytras().size();
         int max = size / 45 + (size % 45 == 0 ? 0 : 1);
         int now = status.getNowPage();
         switch (slot) {
@@ -114,31 +135,38 @@ public class SAEvent implements Listener {
                 status.setNowPage(now - 1);
             }
             case 45 -> status.setNowPage(0);
-            default -> status.setElytra(ShigenAssist.getElytra(meta.getDisplayName()));
+            default -> status.setElytra(assist.getElytra(meta.getDisplayName()));
         }
         status.playSound(Sound.UI_BUTTON_CLICK, 1, 2);
         status.createElytraInventory();
+        player.updateInventory();
     }
     @EventHandler(ignoreCancelled = true)
     private void onClose(InventoryCloseEvent event) {
         var player = (Player) event.getPlayer();
-        if (event.getInventory() == player.getInventory()) return;
+        var inventory = event.getInventory();
+        if (inventory == player.getInventory()) return;
         var title = event.getView().getTitle();
         if (!List.of(SATITLE, EETITLE).contains(title)) return;
         var status = ShigenAssist.getStatus(player);
-        if (title.equals(SATITLE)) status.playSound(Sound.BLOCK_CHEST_CLOSE, 1, 2);
-        else status.playSound(Sound.BLOCK_ENDER_CHEST_CLOSE, 1, 2);
+        // もし、インベントリにアイテムが入った場合に行う処理です。
+        Consumer<ItemStack> consumer = item -> {
+            var playerInventory = player.getInventory();
+            if (playerInventory.firstEmpty() > -1 || playerInventory.contains(item)) playerInventory.addItem(item);
+            else player.getWorld().dropItem(player.getEyeLocation(), item);
+        };
+        if (title.equals(SATITLE)) {
+            status.playSound(Sound.BLOCK_CHEST_CLOSE, 1, 2);
+            Stream.of(inventory.getContents()).skip(SAType.values().length)
+                    .filter(item -> item != null && !item.getType().isAir()).forEach(consumer);
+        } else {
+            status.playSound(Sound.BLOCK_ENDER_CHEST_CLOSE, 1, 2);
+            Stream.of(inventory.getContents()).skip(inventory.firstEmpty()).limit(Math.min(inventory.getSize(), 45))
+                    .filter(item -> item != null && !item.getType().isAir()).forEach(consumer);
+        }
         status.savePersistentDataContainer();
     }
 
-    @EventHandler(ignoreCancelled = true)
-    private void onBreak(BlockBreakEvent event) {
-        var status = ShigenAssist.getStatus(event.getPlayer());
-        status.plusMining();
-        var mining = status.getNextConditionMining();
-        if (mining != null && 0 >= mining) status.setRank(status.getNextRank());
-        status.applyScoreboard();
-    }
     @EventHandler(ignoreCancelled = true)
     private void onDamage(BlockBreakEvent event) {
         var player = event.getPlayer();
@@ -146,11 +174,11 @@ public class SAEvent implements Listener {
         if (status.getData(SAType.NOTICE).isDisable()) return;
         var item = player.getInventory().getItemInMainHand();
         var meta = item.getItemMeta();
-        if (!ShigenAssist.containsItemDamageNotices(item.getType()) || meta == null) return;
+        if (!config.containsItemDamageNotices(item.getType()) || meta == null) return;
         int max = item.getType().getMaxDurability() - 1;
         int now = max - ((Damageable)meta).getDamage();
         SANotice notice = null;
-        for (var sa : ShigenAssist.getNotices()) {
+        for (var sa : config.getNotices()) {
             if (sa.getPercentage() * 0.01 * max >= now) {
                 notice = sa;
                 break;
@@ -168,28 +196,23 @@ public class SAEvent implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    private void onMove(PlayerMoveEvent event) {
-        ShigenAssist.getStatus(event.getPlayer()).applyScoreboard();
-    }
-
-    @EventHandler(ignoreCancelled = true)
     private void onSneak(PlayerToggleSneakEvent event) {
         var player = event.getPlayer();
         var status = ShigenAssist.getStatus(player);
-        if (event.isSneaking() && status.canElyTraJump()) status.elytraJump();
+        if (status.getData(SAType.ELYTRA).isEnable() && event.isSneaking() && status.canElyTraJump()
+                && !config.containsCannotUseWorlds(player.getWorld())) status.elytraJump();
     }
     @EventHandler(ignoreCancelled = true)
     private void onElytra(SAElytraJumpEvent event) {
         var player = event.getPlayer();
-        var status = ShigenAssist.getStatus(player);
-        var datum = status.getData(SAType.ELYTRA);
-        if (datum.getEnable() == -1) {
-            status.sendMessage(ShigenAssist.EEPREFIX + "§c権限がありません");
+        var chest = player.getInventory().getChestplate();
+        if (chest == null || chest.getType() != Material.ELYTRA || !player.isSneaking()) {
             event.setCancelled(true);
             return;
         }
-        var chest = player.getInventory().getChestplate();
-        if (!datum.isEnable() || chest == null || chest.getType() != Material.ELYTRA || !player.isSneaking()) {
+        var status = ShigenAssist.getStatus(player);
+        var datum = status.getData(SAType.ELYTRA);
+        if (datum.isDisable()) {
             event.setCancelled(true);
             return;
         }
