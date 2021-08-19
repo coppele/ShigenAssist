@@ -72,6 +72,8 @@ public abstract class SACommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage("</ee | /sa elytra> : エリトラ補助のエフェクト設定を開きます。");
                 }
                 if (sender.isOp()) {
+                    sender.sendMessage("§7</sa on [logic]> : システムを起動します。");
+                    sender.sendMessage("§7</sa off [logic]> : システムを停止します。");
                     sender.sendMessage("§7</sa reload> : config.ymlを再読み込みします。");
                     sender.sendMessage("§7</sa load> : config.ymlを読み込みします。");
                     sender.sendMessage("§7</sa save> : config.ymlに保存します。");

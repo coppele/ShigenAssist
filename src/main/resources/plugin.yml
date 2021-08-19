@@ -48,5 +48,5 @@ permissions:
     description: ShigenAssistのエリトラ補助の使用権限です。
     default: true
   shigenassist.assist.remarks:
-    description: ShigenAssistの備考欄の表示権限です。
+    description: ShigenAssistの備考欄の使用権限です。
     default: true

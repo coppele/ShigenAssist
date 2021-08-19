@@ -7,8 +7,12 @@
 `/sa reload` - ymlを再読み込みします。</br>
 `/sa load` - ymlを読み込みします。</br>
 `/sa save` - ymlに保存します。</br>
+`/sa <on|enable> <assist|notice|night_vision|elytra|remarks>` - いずれかを起動します</br>
+`/sa <off|disable> <assist|notice|night_vision|elytra|remarks>` - いずれかを停止します</br>
+`/sa switch <assist|notice|night_vision|elytra|remarks>` - いずれかを起動または停止します</br>
 `/sa remarks add [text]` - 備考に新しいテキストを追加します。</br>
 `/sa remarks remove [text]` - 備考のテキストを削除します。</br>
+`/sa remarks next` - 次の備考に移動します。</br>
 `/sa remarks list` - 備考をまとめて確認します。</br>
 
 `/sa elytra | /ee` - エフェクトの設定画面を開きます。
@@ -32,6 +36,7 @@ permissions:
       - shigenassist.assist.notice
       - shigenassist.assist.night_vision
       - shigenassist.assist.elytra
+      - shigenassist.assist.remarks
   shigenassist.assist.notice:
     description: ShigenAssistの破壊警告の使用権限です。
     default: true
@@ -41,11 +46,8 @@ permissions:
   shigenassist.assist.elytra:
     description: ShigenAssistのエリトラ補助の使用権限です。
     default: true
-  shigenassist.assist.remarks.show:
-    description: ShigenAssistの備考欄の表示権限です。
-    default: true
-  shigenassist.assist.remarks.edit:
-    description: ShigenAssistの備考欄の編集権限です。
+  shigenassist.assist.remarks:
+    description: ShigenAssistの備考欄の使用権限です。
     default: true
 ```
 
