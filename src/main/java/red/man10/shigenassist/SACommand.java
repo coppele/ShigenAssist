@@ -80,7 +80,7 @@ public abstract class SACommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage("§7</sa remarks list> : 備考をまとめて確認します。");
                 }
                 sender.sendMessage("Created By " + author);
-                sender.sendMessage("Ver " + description.getVersion() + " Released on 2021/08/13");
+                sender.sendMessage("Ver " + description.getVersion() + " Released on 2021/08/19");
                 sender.sendMessage("=======================" + ShigenAssist.SATITLE + "=======================");
                 return true;
             }
