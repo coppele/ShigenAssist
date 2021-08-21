@@ -1,7 +1,9 @@
 package red.man10.shigenassist.logic;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Scoreboard;
 import red.man10.shigenassist.ShigenAssist;
 import red.man10.shigenassist.data.SAStatus;
 import red.man10.shigenassist.data.SAType;
@@ -16,11 +18,12 @@ public class SAScoreboard extends SAThreader {
         if (!status.getData(SAType.SCOREBOARD).isEnable()) return;
         var player = status.getPlayer();
         var pluginName = ShigenAssist.getPluginName();
-        var scoreboard = player.getScoreboard();
+        var manager = Bukkit.getScoreboardManager();
+        Scoreboard scoreboard;
+        if (manager == null) return;
+        scoreboard = manager.getNewScoreboard();
 
-        var objective = scoreboard.getObjective(pluginName);
-        if (objective != null) objective.unregister();
-        objective = scoreboard.registerNewObjective(pluginName, "Dummy", ShigenAssist.SATITLE);
+        var objective = scoreboard.registerNewObjective(pluginName, "Dummy", ShigenAssist.SATITLE);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         var scores = new ArrayList<String>();

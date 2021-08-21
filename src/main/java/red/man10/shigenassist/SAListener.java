@@ -16,7 +16,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import red.man10.shigenassist.data.SAData;
 import red.man10.shigenassist.data.SAType;
@@ -26,8 +25,6 @@ import red.man10.shigenassist.logic.SANotice;
 import red.man10.shigenassist.logic.SAScoreboard;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static red.man10.shigenassist.ShigenAssist.EETITLE;
 import static red.man10.shigenassist.ShigenAssist.SATITLE;
@@ -149,21 +146,6 @@ public class SAListener implements Listener {
         var title = event.getView().getTitle();
         if (!List.of(SATITLE, EETITLE).contains(title)) return;
         var status = ShigenAssist.getStatus(player);
-        // もし、インベントリにアイテムが入った場合に行う処理です。
-        Consumer<ItemStack> consumer = item -> {
-            var playerInventory = player.getInventory();
-            if (playerInventory.firstEmpty() > -1 || playerInventory.contains(item)) playerInventory.addItem(item);
-            else player.getWorld().dropItem(player.getEyeLocation(), item);
-        };
-        if (title.equals(SATITLE)) {
-            status.playSound(Sound.BLOCK_CHEST_CLOSE, 1, 2);
-            Stream.of(inventory.getContents()).skip(SAType.values().length)
-                    .filter(item -> item != null && !item.getType().isAir()).forEach(consumer);
-        } else {
-            status.playSound(Sound.BLOCK_ENDER_CHEST_CLOSE, 1, 2);
-            Stream.of(inventory.getContents()).skip(inventory.firstEmpty()).limit(Math.min(inventory.getSize(), 45))
-                    .filter(item -> item != null && !item.getType().isAir()).forEach(consumer);
-        }
         status.savePersistentDataContainer();
     }
 
