@@ -3,12 +3,13 @@ package red.man10.shigenassist.logic;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Scoreboard;
 import red.man10.shigenassist.ShigenAssist;
+import red.man10.shigenassist.data.SARank;
 import red.man10.shigenassist.data.SAStatus;
 import red.man10.shigenassist.data.SAType;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class SAScoreboard extends SAThreader {
 
@@ -19,9 +20,8 @@ public class SAScoreboard extends SAThreader {
         var player = status.getPlayer();
         var pluginName = ShigenAssist.getPluginName();
         var manager = Bukkit.getScoreboardManager();
-        Scoreboard scoreboard;
         if (manager == null) return;
-        scoreboard = manager.getNewScoreboard();
+        var scoreboard = manager.getNewScoreboard();
 
         var objective = scoreboard.registerNewObjective(pluginName, "Dummy", ShigenAssist.SATITLE);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -38,7 +38,9 @@ public class SAScoreboard extends SAThreader {
             var world = block.getWorld().getName();
             scores.add("§a§l" + (world.length() > 10 ? "ワ" : "ワールド") + " §e" + world);
         }
-        if (status.getData(SAType.RANK).isEnable()) scores.add("§a§lランク§f§l: §e§l" + status.getRank().getDisplay());
+        if (status.getData(SAType.RANK).isEnable()) {
+            scores.add("§a§lランク: " + status.getRank().getDisplay());
+        }
         if (status.getData(SAType.NEXT_RANK).isEnable()) scores.add("§a§l次まで§f§l: §e§l" + status.getNextRankConditionsMining());
         if (status.getData(SAType.ALL_MINED).isEnable()) scores.add("§a§l総採掘量§f§l: §e§l" + ShigenAssist.getBlocksBroken(player));
         if (status.getData(SAType.NOTICE_DISPLAY).isEnable()) scores.add("§a§l破壊警告§f§l: " + status.getData(SAType.NOTICE).getColorText());

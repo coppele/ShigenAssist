@@ -1,5 +1,5 @@
 name: ShigenAssist
-version: 1.0.5
+version: 1.0.7
 main: red.man10.shigenassist.ShigenAssist
 api-version: 1.17
 authors: [ Aquarius0715, coppele ]

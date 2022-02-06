@@ -11,7 +11,7 @@ public enum SAType implements Keyed {
     BIOME                ("バイオーム", "Biome", SACategory.DISPLAY),
     WORLD                ("ワールド", "World", SACategory.DISPLAY),
     RANK                 ("ランク", "Rank", SACategory.DISPLAY),
-    NEXT_RANK            ("次のランク", "NextRank", SACategory.DISPLAY),
+    NEXT_RANK            ("次のランクまで", "NextRank", SACategory.DISPLAY),
     ALL_MINED            ("総採掘量", "AllMined", SACategory.DISPLAY),
     NOTICE               ("破壊警告", "Notice", SACategory.LOGIC),
     NOTICE_DISPLAY       ("破壊警告表示", "NoticeDisplay", SACategory.LOGIC_DISPLAY),
