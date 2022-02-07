@@ -38,9 +38,7 @@ public class SAScoreboard extends SAThreader {
             var world = block.getWorld().getName();
             scores.add("§a§l" + (world.length() > 10 ? "ワ" : "ワールド") + " §e" + world);
         }
-        if (status.getData(SAType.RANK).isEnable()) {
-            scores.add("§a§lランク: " + status.getRank().getDisplay());
-        }
+        if (status.getData(SAType.RANK).isEnable()) scores.add("§a§lランク§f§l: " + status.getRank().getDisplay());
         if (status.getData(SAType.NEXT_RANK).isEnable()) scores.add("§a§l次まで§f§l: §e§l" + status.getNextRankConditionsMining());
         if (status.getData(SAType.ALL_MINED).isEnable()) scores.add("§a§l総採掘量§f§l: §e§l" + ShigenAssist.getBlocksBroken(player));
         if (status.getData(SAType.NOTICE_DISPLAY).isEnable()) scores.add("§a§l破壊警告§f§l: " + status.getData(SAType.NOTICE).getColorText());

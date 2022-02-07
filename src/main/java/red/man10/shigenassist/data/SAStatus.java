@@ -177,7 +177,7 @@ public class SAStatus {
         player.playSound(player.getLocation(), sound, SoundCategory.AMBIENT, volume, pitch);
     }
     public void updateRank() {
-        if (ShigenAssist.getBlocksBroken(player) >= next.getConditionsMining()) setRank(next);
+        if (next != null && ShigenAssist.getBlocksBroken(player) >= next.getConditionsMining()) setRank(next);
     }
     public boolean canElyTraJump() {
         var chest = player.getInventory().getChestplate();
